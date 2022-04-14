@@ -1,73 +1,75 @@
-﻿using Meetup_API.Data;
-using Meetup_API.Entities;
+﻿using Meetup_API.Entities;
+using Meetup_API.Interfaces.Data;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Meetup_API.Controllers;
 
 public class MeetupController : BaseApiController
 {
-    private readonly DataContext _context;
-    public MeetupController(DataContext context)
+    private readonly IUnitOfWork _unitOfWork;
+    public MeetupController(IUnitOfWork unitOfWork)
     {
-        _context = context;
+        _unitOfWork = unitOfWork;
     }
 
-    [HttpPost]
+    [HttpPost("add-meetup")]
     public async Task<ActionResult> AddMeetup(Meetup meetup)
     {
-        _context.Meetups.Add(meetup);
-        await _context.SaveChangesAsync();
-        return Ok(await _context.Meetups.ToListAsync());
+        _unitOfWork.MeetupRepository.AddMeetup(meetup);
+
+        if (!(await _unitOfWork.CompleteAsync()))
+            return BadRequest("Ошибка добавления митапа");
+
+        return Ok();
     }
 
-    [HttpGet]
+    [HttpGet("get-meetup-list")]
     public async Task<ActionResult<List<Meetup>>> GetMeetups()
     {
-        return Ok(await _context.Meetups.ToListAsync());
+        var meetups = await _unitOfWork.MeetupRepository.GetMeetups();
+
+        if (meetups == null)
+            return BadRequest("Не удалось получить митапы");
+
+        return meetups;
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("get-meetup/{id}")]
     public async Task<ActionResult<Meetup>> GetMeetupById(int id)
     {
-        var meetup = await _context.Meetups.FindAsync(id);
+        var meetup = await _unitOfWork.MeetupRepository.GetMeetupById(id);
+
         if (meetup == null)
-            return BadRequest("Meetup not found");
-        return Ok(meetup);
+            return BadRequest("Не удалось получить митап");
+
+        return meetup;
     }
 
-    [HttpPut]
-    public async Task<ActionResult<List<Meetup>>> UpdateMeetup(Meetup request)
+    [HttpPut("update-meetup")]
+    public async Task<ActionResult> UpdateMeetup(Meetup request)
     {
-        var meetup = await _context.Meetups.FindAsync(request.Id);
+         var meetup = await _unitOfWork.MeetupRepository.UpdateMeetup(request);
+
         if (meetup == null)
-            return BadRequest("Meetup not found");
+            return NotFound("Нет удалось найти митап");
+        
+        if (!(await _unitOfWork.CompleteAsync()))
+            return BadRequest("Не удалось обновить данные митапа");
 
-        meetup.Street = request.Street;
-        meetup.City = request.City;
-        meetup.Tag = request.Tag;
-        meetup.StartMeetupDateTime = request.StartMeetupDateTime;
-        meetup.EndMeetupDateTime = request.EndMeetupDateTime;
-        meetup.OwnerName = request.OwnerName;
-        meetup.Description = request.Description;
-        meetup.HomeNumber = request.HomeNumber;
-        meetup.Name = request.Name;
-
-        await _context.SaveChangesAsync();
-
-        return Ok(await _context.Meetups.ToListAsync());
+        return Ok();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("delete-meetup/{id}")]
     public async Task<ActionResult> DeleteMeetup(int id)
     {
-        var meetup = await _context.Meetups.FindAsync(id);
+        var meetup = await _unitOfWork.MeetupRepository.DeleteMeetup(id);
+
         if (meetup == null)
-            return BadRequest("Meetup not found");
+            return NotFound("Не удалось найти митап");
+        
+        if(!(await _unitOfWork.CompleteAsync()))
+            return BadRequest("Не удалось удалить митап");
 
-        _context.Meetups.Remove(meetup);
-        await _context.SaveChangesAsync();
-
-        return Ok(await _context.Meetups.ToListAsync());
+        return Ok();
     }
 }
