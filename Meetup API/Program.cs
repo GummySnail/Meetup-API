@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 
-services.AddUnitOfWorkService();
+services.AddApplicationServices();
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<DataContext>(options =>

@@ -1,7 +1,10 @@
-﻿namespace Meetup_API.Dtos.Meetup;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Meetup_API.Dtos.Meetup;
 
 public class MeetupDto
 {
+    [Required]
     public int Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }

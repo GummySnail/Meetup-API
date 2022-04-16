@@ -17,7 +17,7 @@ public class MeetupRepository : IMeetupRepository
         _dataContext.Meetups.Add(meetup);
     }
 
-    public async Task<Meetup> DeleteMeetup(int id)
+    public async Task<Meetup> DeleteMeetupAsync(int id)
     {
         var meetup = await _dataContext.Meetups.SingleOrDefaultAsync(m => m.Id == id);
 
@@ -28,17 +28,17 @@ public class MeetupRepository : IMeetupRepository
         return meetup;
     }
 
-    public async Task<Meetup> GetMeetupById(int id)
+    public async Task<Meetup> GetMeetupAsync(int id)
     {
         return await _dataContext.Meetups.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
     }
 
-    public async Task<List<Meetup>> GetMeetups()
+    public async Task<List<Meetup>> GetMeetupsAsync()
     {
         return await _dataContext.Meetups.AsNoTracking().ToListAsync();
     }
 
-    public async Task<Meetup> UpdateMeetup(Meetup request)
+    public async Task<Meetup> UpdateMeetupAsync(Meetup request)
     {
         var meetup = await _dataContext.Meetups.AsNoTracking().SingleOrDefaultAsync(m => m.Id == request.Id);
 

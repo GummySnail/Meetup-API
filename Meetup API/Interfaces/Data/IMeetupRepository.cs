@@ -1,12 +1,13 @@
-﻿using Meetup_API.Entities;
+﻿using Meetup_API.Dtos.Meetup;
+using Meetup_API.Entities;
 
 namespace Meetup_API.Interfaces.Data;
 
 public interface IMeetupRepository
 {
     void AddMeetup(Meetup meetup);
-    Task<List<Meetup>> GetMeetups();
-    Task<Meetup> GetMeetupById(int id);
-    Task<Meetup> UpdateMeetup(Meetup request);
-    Task<Meetup> DeleteMeetup(int id);
+    Task<List<Meetup>> GetMeetupsAsync();
+    Task<Meetup> GetMeetupAsync(int id);
+    Task<Meetup> UpdateMeetupAsync(Meetup request);
+    Task<Meetup> DeleteMeetupAsync(int id);
 }
