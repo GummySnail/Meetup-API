@@ -10,7 +10,9 @@
         public int HomeNumber { get; set; }
         public DateTimeOffset StartMeetupDateTime { get; set; }
         public DateTimeOffset EndMeetupDateTime { get; set; }
-        public string OwnerName { get; set; } // OwnerId
-        public string Tag { get; set; } // Tags Collection<>
+        public Tag Tag { get; set; }
+        public int OwnerId { get; set; }
+        public ICollection<User> Owner { get; set; }
+        public ICollection<UserMeetup> UserMeetups { get; set; }
     }
 }

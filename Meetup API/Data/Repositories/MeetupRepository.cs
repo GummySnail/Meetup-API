@@ -47,10 +47,10 @@ public class MeetupRepository : IMeetupRepository
 
         meetup.Street = request.Street;
         meetup.City = request.City;
-        meetup.Tag = request.Tag;
+       
         meetup.StartMeetupDateTime = request.StartMeetupDateTime;
         meetup.EndMeetupDateTime = request.EndMeetupDateTime;
-        meetup.OwnerName = request.OwnerName;
+        
         meetup.Description = request.Description;
         meetup.HomeNumber = request.HomeNumber;
         meetup.Name = request.Name;
