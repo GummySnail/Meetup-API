@@ -1,4 +1,4 @@
-﻿using Meetup_API.Entities;
+﻿using Meetup_API.Dtos.Tag;
 using System.ComponentModel.DataAnnotations;
 namespace Meetup_API.Dtos.Meetup;
 
@@ -13,5 +13,5 @@ public class MeetupAddDto
     public int OwnerId { get; set; }
     public DateTimeOffset StartMeetupDateTime { get; set; }
     public DateTimeOffset EndMeetupDateTime { get; set; }
-    public ICollection<Tag> Tags { get; set; }
+    public ICollection<TagDto> Tags { get; set; }
 }

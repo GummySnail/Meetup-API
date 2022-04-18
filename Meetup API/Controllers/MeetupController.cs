@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Meetup_API.Dtos.Meetup;
 using Meetup_API.Entities;
+using Meetup_API.Helpers;
 using Meetup_API.Interfaces.Data;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,10 +30,10 @@ public class MeetupController : BaseApiController
         return Ok();
     }
 
-    [HttpGet("get-meetup-list/{page}")]
-    public async Task<ActionResult<List<MeetupDto>>> GetMeetups(int page)
+    [HttpGet("get-meetup-list")]
+    public async Task<ActionResult<List<MeetupDto>>> GetMeetups([FromQuery]MeetupParams meetupParams)
     {
-        var meetups = await _unitOfWork.MeetupRepository.GetMeetupsAsync(page, 3);
+        var meetups = await _unitOfWork.MeetupRepository.GetMeetupsAsync(meetupParams);
 
         if (meetups == null)
             return BadRequest("Не удалось получить митапы");

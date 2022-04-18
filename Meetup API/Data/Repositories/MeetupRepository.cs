@@ -34,15 +34,31 @@ public class MeetupRepository : IMeetupRepository
         return await _dataContext.Meetups.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
     }
 
-    public async Task<PagedList<Meetup>> GetMeetupsAsync(int currentPage, int pageSize)
+    public async Task<PagedList<Meetup>> GetMeetupsAsync(MeetupParams meetupParams)
     {
-        var source = _dataContext.Meetups
-            .AsQueryable()
-            .OrderByDescending(m => m.StartMeetupDateTime)
-            .AsNoTracking();
+        var query = _dataContext.Meetups.AsQueryable().AsNoTracking();
+
+        if(meetupParams.City != null)
+            query = query.Where(m => m.City.ToLower() == meetupParams.City.ToLower());
+
+        if(meetupParams.Name != null)
+            query = query.Where(m => m.Name.ToLower() == meetupParams.Name.ToLower());
+
+        //проверить или работает!!!
+        if(meetupParams.Tag != null)
+            query = query.Where(m => m.Tags.Equals(meetupParams.Tag.ToLower()));
+
+        query = meetupParams.OrderBy switch
+        {
+            "Upcoming" => query.OrderBy(query => query.StartMeetupDateTime),
+            _ => query.OrderByDescending(query => query.StartMeetupDateTime)
+        };
+
+        if (query.Count() < 1)
+            return null;
 
         return await PagedList<Meetup>
-            .CreateAsync(source, currentPage, pageSize);
+            .CreateAsync(query, meetupParams.PageNumber, meetupParams.PageSize);
     }
 
     public async Task<Meetup> UpdateMeetupAsync(Meetup request)
