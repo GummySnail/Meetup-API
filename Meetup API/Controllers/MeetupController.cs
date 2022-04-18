@@ -29,10 +29,10 @@ public class MeetupController : BaseApiController
         return Ok();
     }
 
-    [HttpGet("get-meetup-list")]
-    public async Task<ActionResult<List<MeetupDto>>> GetMeetups()
+    [HttpGet("get-meetup-list/{page}")]
+    public async Task<ActionResult<List<MeetupDto>>> GetMeetups(int page)
     {
-        var meetups = await _unitOfWork.MeetupRepository.GetMeetupsAsync();
+        var meetups = await _unitOfWork.MeetupRepository.GetMeetupsAsync(page, 3);
 
         if (meetups == null)
             return BadRequest("Не удалось получить митапы");

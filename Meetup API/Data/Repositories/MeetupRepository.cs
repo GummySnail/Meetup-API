@@ -1,4 +1,5 @@
 ﻿using Meetup_API.Entities;
+using Meetup_API.Helpers;
 using Meetup_API.Interfaces.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,9 +34,15 @@ public class MeetupRepository : IMeetupRepository
         return await _dataContext.Meetups.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
     }
 
-    public async Task<List<Meetup>> GetMeetupsAsync()
+    public async Task<PagedList<Meetup>> GetMeetupsAsync(int currentPage, int pageSize)
     {
-        return await _dataContext.Meetups.AsNoTracking().ToListAsync();
+        var source = _dataContext.Meetups
+            .AsQueryable()
+            .OrderByDescending(m => m.StartMeetupDateTime)
+            .AsNoTracking();
+
+        return await PagedList<Meetup>
+            .CreateAsync(source, currentPage, pageSize);
     }
 
     public async Task<Meetup> UpdateMeetupAsync(Meetup request)
@@ -59,4 +66,5 @@ public class MeetupRepository : IMeetupRepository
 
         return meetup;
     }
+
 }
