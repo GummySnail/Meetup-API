@@ -5,11 +5,10 @@ public class User
     public int Id { get; set; }
     public string Name { get; set; }
     public Gender? Gender { get; set; }
-    public Role? Role { get; set; }
+    public Role Role { get; set; }
     public string Company { get; set; }
     public string Password { get; set; }
     public DateTimeOffset DateOfBirth { get; set; }
-    
     public ICollection<UserMeetup> UserMeetups { get; set; }
 }
 

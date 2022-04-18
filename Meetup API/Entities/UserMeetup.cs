@@ -6,5 +6,4 @@ public class UserMeetup
     public User User { get; set; }
     public int MeetupId { get; set; }
     public Meetup Meetup { get; set; }
-    public DateTimeOffset DateOfRegistration { get; set; }
 }
