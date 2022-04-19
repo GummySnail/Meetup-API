@@ -13,5 +13,4 @@ public class MeetupAddDto
     public int OwnerId { get; set; }
     public DateTimeOffset StartMeetupDateTime { get; set; }
     public DateTimeOffset EndMeetupDateTime { get; set; }
-    public ICollection<TagDto> Tags { get; set; }
 }

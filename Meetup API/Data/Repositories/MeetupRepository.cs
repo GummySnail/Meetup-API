@@ -31,7 +31,7 @@ public class MeetupRepository : IMeetupRepository
 
     public async Task<Meetup> GetMeetupAsync(int id)
     {
-        return await _dataContext.Meetups.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
+        return await _dataContext.Meetups.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id); //прописать Include и подключить таблицу Tags
     }
 
     public async Task<PagedList<Meetup>> GetMeetupsAsync(MeetupParams meetupParams)
@@ -42,7 +42,7 @@ public class MeetupRepository : IMeetupRepository
             query = query.Where(m => m.City.ToLower() == meetupParams.City.ToLower());
 
         if(meetupParams.Name != null)
-            query = query.Where(m => m.Name.ToLower() == meetupParams.Name.ToLower());
+            query = query.Where(m => m.Name.ToLower() == meetupParams.Name.ToLower()); // по хорошему добавить Like для выборки как в SQL
 
         //проверить или работает!!!
         if(meetupParams.Tag != null)
