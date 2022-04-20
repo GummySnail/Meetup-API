@@ -5,6 +5,10 @@ using Meetup_API.Helpers;
 using Meetup_API.Interfaces;
 using Meetup_API.Interfaces.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Meetup_API.Controllers
 {
@@ -12,13 +16,13 @@ namespace Meetup_API.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly ITokenService _tokenService;
+        private readonly IOptions<AuthOptions> _authOptions;
 
-        public AuthController(IUnitOfWork unitOfWork, IMapper mapper, ITokenService tokenService)
+        public AuthController(IUnitOfWork unitOfWork, IMapper mapper, IOptions<AuthOptions> authOptions)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _tokenService = tokenService;
+            _authOptions = authOptions;
         }
 
         [HttpPost("register")]
@@ -40,7 +44,7 @@ namespace Meetup_API.Controllers
                 Gender = user.Gender,
                 Company = user.Company,
                 DateOfBirth = user.DateOfBirth,
-                Token = await _tokenService.CreateTokenAsync(user)
+                Token = GenerateJWT(user)
             };
         }
 
@@ -59,8 +63,31 @@ namespace Meetup_API.Controllers
                 Gender = user.Gender,
                 Company = user.Company,
                 DateOfBirth = user.DateOfBirth,
-                Token = await _tokenService.CreateTokenAsync(user)
+                Token = GenerateJWT(user)
             };
+        }
+
+        private string GenerateJWT(User user)
+        {
+            var authParams = _authOptions.Value;
+
+            var securityKey = authParams.GetSymmetricSecurityKey();
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var claims = new List<Claim>()
+            {
+                new Claim(JwtRegisteredClaimNames.NameId, user.Username),
+            };
+
+            claims.Add(new Claim("role", user.Role.ToString()));
+
+            var token = new JwtSecurityToken(authParams.Issuer,
+                authParams.Audience,
+                claims,
+                expires: DateTime.UtcNow.AddSeconds(authParams.TokenLifeTime),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

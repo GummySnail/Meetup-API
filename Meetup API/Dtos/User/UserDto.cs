@@ -8,7 +8,7 @@ public class UserDto
     [Required]
     public string Username { get; set; }
     [Required]
-    public Gender? Gender { get; set; }
+    public Gender Gender { get; set; }
     [Required]
     public string Company { get; set; }
     [Required]

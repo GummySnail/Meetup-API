@@ -14,7 +14,7 @@ public class UserRegistrationDto
     [Required]
     public Gender? Gender { get; set; }
     [Required]
-    public Role Role { get; set; } = Role.User;
+    public Role Role { get; set; }
     [Required]
     public string Company { get; set; }
     [Required]

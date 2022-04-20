@@ -6,8 +6,8 @@ public class User
     public string Username { get; set; } = string.Empty;
     public byte[] PasswordHash { get; set; }
     public byte[] PasswordSalt { get; set; }
-    public Gender? Gender { get; set; }
-    public Role Role { get; set; } = Role.User;
+    public Gender Gender { get; set; }
+    public Role Role { get; set; }
     public string Company { get; set; }
     public DateTimeOffset DateOfBirth { get; set; }
     public ICollection<UserMeetup> UserMeetups { get; set; }
