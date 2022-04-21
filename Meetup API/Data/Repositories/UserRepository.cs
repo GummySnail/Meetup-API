@@ -21,7 +21,9 @@ public class UserRepository : IUserRepository
     public void AddUser(UserRegistrationDto userRegistrationDto)
     {
         PasswordHasher.CreatePasswordHash(userRegistrationDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
+
         var user = _mapper.Map<UserRegistrationDto, User>(userRegistrationDto);
+
         user.PasswordHash = passwordHash;
         user.PasswordSalt = passwordSalt;
 
@@ -41,7 +43,9 @@ public class UserRepository : IUserRepository
         var user = await _dataContext.Users.SingleOrDefaultAsync(u => u.Username == userLoginDto.Username);
 
         if (user == null)
+        {
             return false;
+        }
 
         return PasswordHasher.VerifyPasswordHash(userLoginDto.Password, user.PasswordHash, user.PasswordSalt);
     }

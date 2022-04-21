@@ -1,10 +1,12 @@
 ﻿using Meetup_API.Dtos.Tag;
 using System.ComponentModel.DataAnnotations;
+
 namespace Meetup_API.Dtos.Meetup;
 
-public class MeetupAddDto
+public class RequestMeetupDto
 {
     [Required]
+    public int Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public string City { get; set; }

@@ -13,60 +13,109 @@ public class MeetupRepository : IMeetupRepository
         _dataContext = dataContext;
     }
 
-    public void AddMeetup(Meetup meetup)
+    public void AddMeetup(Meetup meetup, int ownerId)
     {
+        meetup.OwnerId = ownerId;
         _dataContext.Meetups.Add(meetup);
     }
 
-    public async Task<Meetup> DeleteMeetupAsync(int id)
+    public async Task<Meetup> DeleteMeetupAsync(int id, int ownerId)
     {
         var meetup = await _dataContext.Meetups.SingleOrDefaultAsync(m => m.Id == id);
 
         if (meetup == null)
+        {
             return meetup;
-        
+        }
+
+        if (meetup.OwnerId != ownerId)
+        {
+            return null;
+        }
+
         _dataContext.Remove(meetup);
         return meetup;
     }
 
     public async Task<Meetup> GetMeetupAsync(int id)
     {
-        return await _dataContext.Meetups.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id); //прописать Include и подключить таблицу Tags
+        return await _dataContext.Meetups.AsNoTracking().Include(m => m.Tags).SingleOrDefaultAsync(m => m.Id == id);
     }
 
     public async Task<PagedList<Meetup>> GetMeetupsAsync(MeetupParams meetupParams)
     {
-        var query = _dataContext.Meetups.AsQueryable().AsNoTracking();
-
-        if(meetupParams.City != null)
-            query = query.Where(m => m.City.ToLower() == meetupParams.City.ToLower());
-
-        if(meetupParams.Name != null)
-            query = query.Where(m => m.Name.ToLower() == meetupParams.Name.ToLower()); // по хорошему добавить Like для выборки как в SQL
-
-        //проверить или работает!!!
-        if(meetupParams.Tag != null)
-            query = query.Where(m => m.Tags.Equals(meetupParams.Tag.ToLower()));
-
-        query = meetupParams.OrderBy switch
+        
+        var queryMeetup = _dataContext.Meetups.AsQueryable()
+            .AsNoTracking()
+            .Include(m => m.Tags);
+        
+        if (meetupParams.City != null)
         {
-            "Upcoming" => query.OrderBy(query => query.StartMeetupDateTime),
-            _ => query.OrderByDescending(query => query.StartMeetupDateTime)
+            queryMeetup = _dataContext.Meetups.AsQueryable()
+                .AsNoTracking()
+                .Where(m => m.City.ToLower() == meetupParams.City.ToLower())
+                .Include(m => m.Tags);
+        }
+            
+        if(meetupParams.Name != null)
+        {
+            queryMeetup = _dataContext.Meetups.AsQueryable().
+                AsNoTracking()
+                .Where(m => m.Name.ToLower()
+                .Contains(meetupParams.Name.ToLower()))
+                .Include(m => m.Tags);
+        }   
+
+        queryMeetup = meetupParams.OrderBy switch
+        {
+            "Upcoming" => _dataContext.Meetups.AsQueryable()
+            .AsNoTracking()
+            .OrderBy(query => query.StartMeetupDateTime)
+            .Include(m => m.Tags),
+
+            _ => _dataContext.Meetups.AsQueryable()
+            .AsNoTracking()
+            .OrderByDescending(query => query.StartMeetupDateTime)
+            .Include(m => m.Tags)
         };
 
-        if (query.Count() < 1)
+        if (queryMeetup.Count() < 1)
+        {
             return null;
+        }
 
         return await PagedList<Meetup>
-            .CreateAsync(query, meetupParams.PageNumber, meetupParams.PageSize);
+            .CreateAsync(queryMeetup, meetupParams.PageNumber, meetupParams.PageSize);
     }
 
-    public async Task<Meetup> UpdateMeetupAsync(Meetup request)
+    public async Task<UserMeetup> SigUpForMeetupAsync(UserMeetup userMeetup)
+    {
+        var meetupIsNull = await _dataContext.Meetups.SingleOrDefaultAsync(m => m.Id == userMeetup.MeetupId);
+        var userIsNull = await _dataContext.Users.SingleOrDefaultAsync(u => u.Id == userMeetup.UserId);
+
+        if (meetupIsNull == null || userIsNull == null)
+        {
+            return null;
+        }
+     
+        _dataContext.UserMeetups.Add(userMeetup);
+
+        return userMeetup;
+    }
+
+    public async Task<Meetup> UpdateMeetupAsync(Meetup request, int ownerId)
     {
         var meetup = await _dataContext.Meetups.AsNoTracking().SingleOrDefaultAsync(m => m.Id == request.Id);
 
         if (meetup == null)
+        {
             return meetup;
+        }
+
+        if (ownerId != meetup.OwnerId)
+        {
+            return null;
+        }
 
         meetup.Street = request.Street;
         meetup.City = request.City;
@@ -76,7 +125,7 @@ public class MeetupRepository : IMeetupRepository
         meetup.Description = request.Description;
         meetup.HomeNumber = request.HomeNumber;
         meetup.Name = request.Name;
-        meetup.OwnerId = request.OwnerId;
+        meetup.OwnerId = ownerId;
 
         _dataContext.Meetups.Update(meetup);
 

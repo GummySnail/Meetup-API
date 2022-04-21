@@ -29,12 +29,16 @@ namespace Meetup_API.Controllers
         public async Task<ActionResult<UserDto>> Register(UserRegistrationDto userRegistrationDto)
         {
             if (await _unitOfWork.UserRepository.UserExistsAsync(userRegistrationDto.Username))
-                return BadRequest("Введённый Username уже используется");
+            { 
+                return BadRequest("Введённый Username уже используется"); 
+            }
 
             _unitOfWork.UserRepository.AddUser(userRegistrationDto);
 
             if (!(await _unitOfWork.CompleteAsync()))
+            {
                 return BadRequest("Ошибка добавления пользователя");
+            }
 
             var user = await _unitOfWork.UserRepository.GetUserByUserNameAsync(userRegistrationDto.Username);
 
@@ -44,7 +48,7 @@ namespace Meetup_API.Controllers
                 Gender = user.Gender,
                 Company = user.Company,
                 DateOfBirth = user.DateOfBirth,
-                Token = GenerateJWT(user)
+                AccessToken = GenerateJWT(user)
             };
         }
 
@@ -53,7 +57,9 @@ namespace Meetup_API.Controllers
         {
             if ( !( await _unitOfWork.UserRepository.UserExistsAsync(userLoginDto.Username)) ||
                 !(await _unitOfWork.UserRepository.VerifyPasswordAsync(userLoginDto)))
+            {
                 return BadRequest("Не верные данные Username или Password");
+            }
 
             var user = await _unitOfWork.UserRepository.GetUserByUserNameAsync(userLoginDto.Username);
 
@@ -63,7 +69,7 @@ namespace Meetup_API.Controllers
                 Gender = user.Gender,
                 Company = user.Company,
                 DateOfBirth = user.DateOfBirth,
-                Token = GenerateJWT(user)
+                AccessToken = GenerateJWT(user)
             };
         }
 
@@ -76,7 +82,8 @@ namespace Meetup_API.Controllers
 
             var claims = new List<Claim>()
             {
-                new Claim(JwtRegisteredClaimNames.NameId, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
             };
 
             claims.Add(new Claim("role", user.Role.ToString()));
@@ -89,5 +96,7 @@ namespace Meetup_API.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        
     }
 }
