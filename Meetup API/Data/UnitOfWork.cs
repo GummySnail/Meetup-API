@@ -16,7 +16,6 @@ public class UnitOfWork : IUnitOfWork
     }
 
     public IMeetupRepository MeetupRepository => new MeetupRepository(_dataContext);
-    public ITagRepository TagRepository => new TagRepository(_dataContext);
     public IUserRepository UserRepository => new UserRepository(_dataContext, _mapper);
 
     public async Task<bool> CompleteAsync() => await _dataContext.SaveChangesAsync() > 0;

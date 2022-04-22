@@ -9,6 +9,7 @@ public class User
     public Gender Gender { get; set; }
     public Role Role { get; set; }
     public string Company { get; set; }
+    public int RefreshTokenId { get; set; }
     public DateTimeOffset DateOfBirth { get; set; }
     public ICollection<UserMeetup> UserMeetups { get; set; }
 }

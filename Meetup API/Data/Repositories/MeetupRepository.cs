@@ -44,29 +44,12 @@ public class MeetupRepository : IMeetupRepository
 
     public async Task<PagedList<Meetup>> GetMeetupsAsync(MeetupParams meetupParams)
     {
-        
+
         var queryMeetup = _dataContext.Meetups.AsQueryable()
             .AsNoTracking()
             .Include(m => m.Tags);
-        
-        if (meetupParams.City != null)
-        {
-            queryMeetup = _dataContext.Meetups.AsQueryable()
-                .AsNoTracking()
-                .Where(m => m.City.ToLower() == meetupParams.City.ToLower())
-                .Include(m => m.Tags);
-        }
-            
-        if(meetupParams.Name != null)
-        {
-            queryMeetup = _dataContext.Meetups.AsQueryable().
-                AsNoTracking()
-                .Where(m => m.Name.ToLower()
-                .Contains(meetupParams.Name.ToLower()))
-                .Include(m => m.Tags);
-        }   
 
-        queryMeetup = meetupParams.OrderBy switch
+        queryMeetup = meetupParams.OrderByDateTime switch
         {
             "Upcoming" => _dataContext.Meetups.AsQueryable()
             .AsNoTracking()
@@ -78,6 +61,23 @@ public class MeetupRepository : IMeetupRepository
             .OrderByDescending(query => query.StartMeetupDateTime)
             .Include(m => m.Tags)
         };
+
+        if (meetupParams.City != null)
+        {
+            queryMeetup = _dataContext.Meetups.AsQueryable()
+                .AsNoTracking()
+                .Where(m => m.City.ToLower() == meetupParams.City.ToLower())
+                .Include(m => m.Tags);
+        }
+
+        if (meetupParams.Name != null)
+        {
+            queryMeetup = _dataContext.Meetups.AsQueryable()
+                .AsNoTracking()
+                .Where(m => m.Name.ToLower()
+                .Contains(meetupParams.Name.ToLower()))
+                .Include(m => m.Tags);
+        }
 
         if (queryMeetup.Count() < 1)
         {

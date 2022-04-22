@@ -17,7 +17,8 @@ public class AutoMapperProfile : Profile
             .ForMember(ma => ma.Id, opt => opt.Ignore())
             .ForMember(ma => ma.OwnerId, opt => opt.Ignore());
         CreateMap<TagDto, Tag>()
-            .ForMember(t=> t.Id, opt => opt.Ignore());
+            .ForMember(t => t.Id, opt => opt.Ignore())
+            .ForMember(t => t.MeetupId, opt => opt.Ignore());
         CreateMap<UserRegistrationDto, User>()
             .ForMember(ur => ur.Id, opt => opt.Ignore())
             .ForMember(ur => ur.PasswordHash, opt => opt.Ignore())
