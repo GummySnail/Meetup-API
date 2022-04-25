@@ -28,7 +28,7 @@ namespace Meetup_API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(UserRegistrationDto userRegistrationDto)
         {
-            if (await _unitOfWork.UserRepository.UserExistsAsync(userRegistrationDto.Username))
+            if (await _unitOfWork.UserRepository.UserExistsAsync(userRegistrationDto.UserName))
             { 
                 return BadRequest("Введённый Username уже используется"); 
             }
@@ -40,58 +40,58 @@ namespace Meetup_API.Controllers
                 return BadRequest("Ошибка добавления пользователя");
             }
 
-            var user = await _unitOfWork.UserRepository.GetUserByUserNameAsync(userRegistrationDto.Username);
+            var User = await _unitOfWork.UserRepository.GetUserByUserNameAsync(userRegistrationDto.UserName);
 
             return new UserDto
             {
-                Username = user.Username,
-                Gender = user.Gender,
-                Company = user.Company,
-                DateOfBirth = user.DateOfBirth,
-                AccessToken = GenerateJWT(user)
+                UserName = User.UserName,
+                Gender = User.Gender,
+                Company = User.Company,
+                DateOfBirth = User.DateOfBirth,
+                AccessToken = GenerateJWT(User)
             };
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(UserLoginDto userLoginDto)
         {
-            if ( !( await _unitOfWork.UserRepository.UserExistsAsync(userLoginDto.Username)) ||
+            if ( !( await _unitOfWork.UserRepository.UserExistsAsync(userLoginDto.UserName)) ||
                 !(await _unitOfWork.UserRepository.VerifyPasswordAsync(userLoginDto)))
             {
                 return BadRequest("Не верные данные Username или Password");
             }
 
-            var user = await _unitOfWork.UserRepository.GetUserByUserNameAsync(userLoginDto.Username);
+            var User = await _unitOfWork.UserRepository.GetUserByUserNameAsync(userLoginDto.UserName);
 
             return new UserDto
             {
-                Username = user.Username,
-                Gender = user.Gender,
-                Company = user.Company,
-                DateOfBirth = user.DateOfBirth,
-                AccessToken = GenerateJWT(user)
+                UserName = User.UserName,
+                Gender = User.Gender,
+                Company = User.Company,
+                DateOfBirth = User.DateOfBirth,
+                AccessToken = GenerateJWT(User)
             };
         }
 
         private string GenerateJWT(User user)
         {
-            var authParams = _authOptions.Value;
+            var AuthParams = _authOptions.Value;
 
-            var securityKey = authParams.GetSymmetricSecurityKey();
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var SecurityKey = AuthParams.GetSymmetricSecurityKey();
+            var Credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = new List<Claim>()
+            var Claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
 
-            claims.Add(new Claim("role", user.Role.ToString()));
+            Claims.Add(new Claim("role", user.Role.ToString()));
 
-            var token = new JwtSecurityToken(authParams.Issuer,
-                authParams.Audience,
-                claims,
-                expires: DateTime.UtcNow.AddSeconds(authParams.TokenLifeTime),
-                signingCredentials: credentials);
+            var token = new JwtSecurityToken(AuthParams.Issuer,
+                AuthParams.Audience,
+                Claims,
+                expires: DateTime.UtcNow.AddSeconds(AuthParams.TokenLifeTime),
+                signingCredentials: Credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

@@ -22,31 +22,31 @@ public class UserRepository : IUserRepository
     {
         PasswordHasher.CreatePasswordHash(userRegistrationDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-        var user = _mapper.Map<UserRegistrationDto, User>(userRegistrationDto);
+        var User = _mapper.Map<UserRegistrationDto, User>(userRegistrationDto);
 
-        user.PasswordHash = passwordHash;
-        user.PasswordSalt = passwordSalt;
+        User.PasswordHash = passwordHash;
+        User.PasswordSalt = passwordSalt;
 
-        _dataContext.Users.Add(user);
+        _dataContext.Users.Add(User);
     }
 
-    public async Task<User> GetUserByUserNameAsync(string username)
+    public async Task<User> GetUserByUserNameAsync(string userName)
     {
-        return await _dataContext.Users.SingleOrDefaultAsync(u => u.Username == username);
+        return await _dataContext.Users.SingleOrDefaultAsync(u => u.UserName == userName);
     }
 
-    public async Task<bool> UserExistsAsync(string username) => await _dataContext.Users
-        .AnyAsync(x => x.Username.ToLower() == username.ToLower());
+    public async Task<bool> UserExistsAsync(string userName) => await _dataContext.Users
+        .AnyAsync(x => x.UserName.ToLower() == userName.ToLower());
 
     public async Task<bool> VerifyPasswordAsync(UserLoginDto userLoginDto)
     {
-        var user = await _dataContext.Users.SingleOrDefaultAsync(u => u.Username == userLoginDto.Username);
+        var User = await _dataContext.Users.SingleOrDefaultAsync(u => u.UserName == userLoginDto.UserName);
 
-        if (user == null)
+        if (User == null)
         {
             return false;
         }
 
-        return PasswordHasher.VerifyPasswordHash(userLoginDto.Password, user.PasswordHash, user.PasswordSalt);
+        return PasswordHasher.VerifyPasswordHash(userLoginDto.Password, User.PasswordHash, User.PasswordSalt);
     }
 }

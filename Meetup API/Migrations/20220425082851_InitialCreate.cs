@@ -36,13 +36,12 @@ namespace Meetup_API.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Username = table.Column<string>(type: "text", nullable: true),
+                    UserName = table.Column<string>(type: "text", nullable: true),
                     PasswordHash = table.Column<byte[]>(type: "bytea", nullable: true),
                     PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: true),
                     Gender = table.Column<int>(type: "integer", nullable: false),
                     Role = table.Column<int>(type: "integer", nullable: false),
                     Company = table.Column<string>(type: "text", nullable: true),
-                    RefreshTokenId = table.Column<int>(type: "integer", nullable: false),
                     DateOfBirth = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>

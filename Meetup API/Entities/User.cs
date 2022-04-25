@@ -3,13 +3,12 @@
 public class User
 {
     public int Id { get; set; }
-    public string Username { get; set; } = string.Empty;
+    public string UserName { get; set; } = string.Empty;
     public byte[] PasswordHash { get; set; }
     public byte[] PasswordSalt { get; set; }
     public Gender Gender { get; set; }
     public Role Role { get; set; }
     public string Company { get; set; }
-    public int RefreshTokenId { get; set; }
     public DateTimeOffset DateOfBirth { get; set; }
     public ICollection<Meetup> Meetups { get; set; }
 }

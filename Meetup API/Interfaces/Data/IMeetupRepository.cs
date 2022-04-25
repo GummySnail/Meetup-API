@@ -9,7 +9,8 @@ public interface IMeetupRepository
     void AddMeetup(Meetup meetup, int ownerId);
     Task<PagedList<Meetup>> GetMeetupsAsync(MeetupParams meetupParams);
     Task<Meetup> GetMeetupAsync(int id);
-    Task<Meetup> UpdateMeetupAsync(Meetup request, int ownerId);
-    Task<Meetup> DeleteMeetupAsync(int id, int ownerId);
+    Task<Meetup> UpdateMeetupAsync(Meetup request);
+    Task<Meetup> DeleteMeetupAsync(int id);
     Task<Meetup> SignUpForMeetupAsync(SignUpForMeetupDto request);
+    Task<bool> IsOwner(int ownerId);
 }

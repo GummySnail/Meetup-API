@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Meetup_API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220425045139_InitialCreate")]
+    [Migration("20220425082851_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -105,13 +105,10 @@ namespace Meetup_API.Migrations
                     b.Property<byte[]>("PasswordSalt")
                         .HasColumnType("bytea");
 
-                    b.Property<int>("RefreshTokenId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("Role")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("UserName")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

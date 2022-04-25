@@ -6,7 +6,7 @@ namespace Meetup_API.Interfaces.Data;
 public interface IUserRepository
 {
     void AddUser(UserRegistrationDto user);
-    Task<bool> UserExistsAsync(string username);
+    Task<bool> UserExistsAsync(string userName);
     Task<bool> VerifyPasswordAsync(UserLoginDto userLoginDto);
-    Task<User> GetUserByUserNameAsync(string username);
+    Task<User> GetUserByUserNameAsync(string userName);
 }

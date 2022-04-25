@@ -24,9 +24,9 @@ public class MeetupController : BaseApiController
     [Authorize (Roles = "Organizer")]
     public async Task<ActionResult> AddMeetup(MeetupAddDto meetupDto)
     {
-        var ownerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var OwnerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        _unitOfWork.MeetupRepository.AddMeetup(_mapper.Map<MeetupAddDto, Meetup>(meetupDto), ownerId);
+        _unitOfWork.MeetupRepository.AddMeetup(_mapper.Map<MeetupAddDto, Meetup>(meetupDto), OwnerId);
 
         if (!(await _unitOfWork.CompleteAsync()))
         {
@@ -39,16 +39,16 @@ public class MeetupController : BaseApiController
     [HttpGet]
     public async Task<ActionResult<List<ResponseMeetupDto>>> GetMeetups([FromQuery]MeetupParams meetupParams)
     {
-        var meetups = await _unitOfWork.MeetupRepository.GetMeetupsAsync(meetupParams);
+        var Meetups = await _unitOfWork.MeetupRepository.GetMeetupsAsync(meetupParams);
         
-        List<ResponseMeetupDto> meetupDtos = new List<ResponseMeetupDto>();
+        List<ResponseMeetupDto> MeetupDtos = new List<ResponseMeetupDto>();
 
-        foreach (var meetup in meetups)
+        foreach (var meetup in Meetups)
         {
-            meetupDtos.Add(_mapper.Map<Meetup, ResponseMeetupDto>(meetup));
+            MeetupDtos.Add(_mapper.Map<Meetup, ResponseMeetupDto>(meetup));
         }
 
-        return meetupDtos;
+        return MeetupDtos;
     }
 
     [HttpGet("{id}")]
@@ -68,14 +68,18 @@ public class MeetupController : BaseApiController
     [Authorize(Roles = "Organizer")]
     public async Task<ActionResult> UpdateMeetup(RequestMeetupDto request)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        var meetup = await _unitOfWork.MeetupRepository.UpdateMeetupAsync(_mapper.Map<RequestMeetupDto, Meetup>(request), userId);
-
-
-        if (meetup == null)
+        if (!(await _unitOfWork.MeetupRepository.IsOwner(UserId)))
         {
-            return BadRequest("Не верные данные");
+            return BadRequest("Вы не имеете права изменять чужой митап");
+        }
+
+        var Meetup = await _unitOfWork.MeetupRepository.UpdateMeetupAsync(_mapper.Map<RequestMeetupDto, Meetup>(request));
+
+        if (Meetup == null)
+        {
+            return NotFound("Нет митапа с указанным Id");
         }
             
         if (!(await _unitOfWork.CompleteAsync()))
@@ -90,13 +94,18 @@ public class MeetupController : BaseApiController
     [Authorize(Roles = "Organizer")]
     public async Task<ActionResult> DeleteMeetup(int id)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        var meetup = await _unitOfWork.MeetupRepository.DeleteMeetupAsync(id, userId);
-
-        if (meetup == null)
+        if(!(await _unitOfWork.MeetupRepository.IsOwner(UserId)))
         {
-            return BadRequest("Не верные данные");
+            return BadRequest("Вы не имеете права удалять чужой митап");
+        }
+
+        var Meetup = await _unitOfWork.MeetupRepository.DeleteMeetupAsync(id);
+
+        if (Meetup == null)
+        {
+            return NotFound("Нет митапа с указанным Id");
         }
 
         if(!(await _unitOfWork.CompleteAsync()))

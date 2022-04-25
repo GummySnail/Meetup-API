@@ -15,8 +15,29 @@ public class UnitOfWork : IUnitOfWork
         _mapper = mapper;
     }
 
-    public IMeetupRepository MeetupRepository => new MeetupRepository(_dataContext);
-    public IUserRepository UserRepository => new UserRepository(_dataContext, _mapper);
-
+    private IMeetupRepository _meetupRepository;
+    private IUserRepository _userRepository;
+    public IMeetupRepository MeetupRepository
+    {
+        get
+        {
+            if (_meetupRepository == null)
+            {
+                _meetupRepository = new MeetupRepository(_dataContext);
+            }
+            return _meetupRepository;
+        }
+    }
+    public IUserRepository UserRepository
+    {
+        get
+        {
+            if(_userRepository == null)
+            {
+                _userRepository = new UserRepository(_dataContext, _mapper);
+            }
+            return _userRepository;
+        }
+    }
     public async Task<bool> CompleteAsync() => await _dataContext.SaveChangesAsync() > 0;
 }

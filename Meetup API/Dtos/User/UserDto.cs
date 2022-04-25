@@ -6,7 +6,7 @@ namespace Meetup_API.Dtos.User;
 public class UserDto
 { 
     [Required]
-    public string Username { get; set; }
+    public string UserName { get; set; }
     [Required]
     public Gender Gender { get; set; }
     [Required]
