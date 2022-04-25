@@ -11,7 +11,7 @@ public class User
     public string Company { get; set; }
     public int RefreshTokenId { get; set; }
     public DateTimeOffset DateOfBirth { get; set; }
-    public ICollection<UserMeetup> UserMeetups { get; set; }
+    public ICollection<Meetup> Meetups { get; set; }
 }
 
 public enum Role

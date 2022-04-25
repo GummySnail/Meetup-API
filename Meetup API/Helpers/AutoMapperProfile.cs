@@ -23,7 +23,6 @@ public class AutoMapperProfile : Profile
             .ForMember(ur => ur.Id, opt => opt.Ignore())
             .ForMember(ur => ur.PasswordHash, opt => opt.Ignore())
             .ForMember(ur => ur.PasswordSalt, opt => opt.Ignore());
-        CreateMap<SignUpForMeetupDto, UserMeetup>();
         CreateMap<ResponseMeetupDto, Meetup>();
 
         /*--   Entity to DTO   --*/
@@ -31,7 +30,6 @@ public class AutoMapperProfile : Profile
         CreateMap<Meetup, MeetupAddDto>();
         CreateMap<Tag, TagDto>();
         CreateMap<User, UserRegistrationDto>();
-        CreateMap<UserMeetup, SignUpForMeetupDto>();
         CreateMap<Meetup, ResponseMeetupDto>();
     }
 

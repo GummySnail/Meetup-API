@@ -12,6 +12,6 @@
         public DateTimeOffset StartMeetupDateTime { get; set; }
         public DateTimeOffset EndMeetupDateTime { get; set; }
         public ICollection<Tag> Tags { get; set; }
-        public ICollection<UserMeetup> UserMeetups { get; set; }
+        public ICollection<User> Users { get; set; }
     }
 }

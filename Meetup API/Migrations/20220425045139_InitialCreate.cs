@@ -71,53 +71,53 @@ namespace Meetup_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserMeetups",
+                name: "MeetupUser",
                 columns: table => new
                 {
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    MeetupId = table.Column<int>(type: "integer", nullable: false)
+                    MeetupsId = table.Column<int>(type: "integer", nullable: false),
+                    UsersId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserMeetups", x => new { x.MeetupId, x.UserId });
+                    table.PrimaryKey("PK_MeetupUser", x => new { x.MeetupsId, x.UsersId });
                     table.ForeignKey(
-                        name: "FK_UserMeetups_Meetups_MeetupId",
-                        column: x => x.MeetupId,
+                        name: "FK_MeetupUser_Meetups_MeetupsId",
+                        column: x => x.MeetupsId,
                         principalTable: "Meetups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserMeetups_Users_UserId",
-                        column: x => x.UserId,
+                        name: "FK_MeetupUser_Users_UsersId",
+                        column: x => x.UsersId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_MeetupUser_UsersId",
+                table: "MeetupUser",
+                column: "UsersId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tags_MeetupId",
                 table: "Tags",
                 column: "MeetupId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserMeetups_UserId",
-                table: "UserMeetups",
-                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "MeetupUser");
+
+            migrationBuilder.DropTable(
                 name: "Tags");
 
             migrationBuilder.DropTable(
-                name: "UserMeetups");
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Meetups");
-
-            migrationBuilder.DropTable(
-                name: "Users");
         }
     }
 }

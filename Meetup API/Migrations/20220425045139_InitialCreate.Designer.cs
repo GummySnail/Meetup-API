@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Meetup_API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220422002309_InitialCreate")]
+    [Migration("20220425045139_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -119,19 +119,19 @@ namespace Meetup_API.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Meetup_API.Entities.UserMeetup", b =>
+            modelBuilder.Entity("MeetupUser", b =>
                 {
-                    b.Property<int>("MeetupId")
+                    b.Property<int>("MeetupsId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
+                    b.Property<int>("UsersId")
                         .HasColumnType("integer");
 
-                    b.HasKey("MeetupId", "UserId");
+                    b.HasKey("MeetupsId", "UsersId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UsersId");
 
-                    b.ToTable("UserMeetups");
+                    b.ToTable("MeetupUser");
                 });
 
             modelBuilder.Entity("Meetup_API.Entities.Tag", b =>
@@ -145,35 +145,24 @@ namespace Meetup_API.Migrations
                     b.Navigation("Meetup");
                 });
 
-            modelBuilder.Entity("Meetup_API.Entities.UserMeetup", b =>
+            modelBuilder.Entity("MeetupUser", b =>
                 {
-                    b.HasOne("Meetup_API.Entities.Meetup", "Meetup")
-                        .WithMany("UserMeetups")
-                        .HasForeignKey("MeetupId")
+                    b.HasOne("Meetup_API.Entities.Meetup", null)
+                        .WithMany()
+                        .HasForeignKey("MeetupsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Meetup_API.Entities.User", "User")
-                        .WithMany("UserMeetups")
-                        .HasForeignKey("UserId")
+                    b.HasOne("Meetup_API.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Meetup");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Meetup_API.Entities.Meetup", b =>
                 {
                     b.Navigation("Tags");
-
-                    b.Navigation("UserMeetups");
-                });
-
-            modelBuilder.Entity("Meetup_API.Entities.User", b =>
-                {
-                    b.Navigation("UserMeetups");
                 });
 #pragma warning restore 612, 618
         }

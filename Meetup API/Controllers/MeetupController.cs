@@ -109,21 +109,20 @@ public class MeetupController : BaseApiController
 
     [HttpPost("sign-up")]
     [Authorize]
-    public async Task<ActionResult> SignUpForMeetup(SignUpForMeetupDto signUpForMeetupDto)
+    public async Task<ActionResult> SignUpForMeetup(SignUpForMeetupDto request)
     {
-        var userMeetup = await _unitOfWork.MeetupRepository.SigUpForMeetupAsync(_mapper.Map<SignUpForMeetupDto, UserMeetup>(signUpForMeetupDto));
-        
-        if (userMeetup == null)
+        var UserMeetup = await _unitOfWork.MeetupRepository.SignUpForMeetupAsync(request);
+
+        if (UserMeetup == null)
         {
-            return BadRequest("Не верные входные данные");
+            return NotFound();
         }
-            
 
         if (!(await _unitOfWork.CompleteAsync()))
         {
             return BadRequest("Не удалось записаться на митап");
         }
-           
+
         return Ok();
     }
 }

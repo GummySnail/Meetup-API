@@ -1,4 +1,5 @@
-﻿using Meetup_API.Entities;
+﻿using Meetup_API.Dtos.Meetup;
+using Meetup_API.Entities;
 using Meetup_API.Helpers;
 using Meetup_API.Interfaces.Data;
 using Microsoft.EntityFrameworkCore;
@@ -58,19 +59,28 @@ public class MeetupRepository : IMeetupRepository
             .CreateAsync(Query, meetupParams.PageNumber, meetupParams.PageSize);
     }
 
-    public async Task<UserMeetup> SigUpForMeetupAsync(UserMeetup userMeetup)
+    public async Task<Meetup> SignUpForMeetupAsync(SignUpForMeetupDto request)
     {
-        var meetupIsNull = await _dataContext.Meetups.SingleOrDefaultAsync(m => m.Id == userMeetup.MeetupId);
-        var userIsNull = await _dataContext.Users.SingleOrDefaultAsync(u => u.Id == userMeetup.UserId);
+        var user = await _dataContext.Users
+            .Where(u => u.Id == request.UserId)
+            .Include(u => u.Meetups)
+            .FirstOrDefaultAsync();
 
-        if (meetupIsNull == null || userIsNull == null)
+        if(user == null)
         {
             return null;
         }
-     
-        _dataContext.UserMeetups.Add(userMeetup);
 
-        return userMeetup;
+        var meetup = await _dataContext.Meetups.FindAsync(request.MeetupId);
+
+        if(meetup == null)
+        {
+            return null;
+        }
+
+        user.Meetups.Add(meetup);
+
+        return meetup;
     }
 
     public async Task<Meetup> UpdateMeetupAsync(Meetup request, int ownerId)
