@@ -22,12 +22,12 @@ public class UserRepository : IUserRepository
     {
         PasswordHasher.CreatePasswordHash(userRegistrationDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-        var User = _mapper.Map<UserRegistrationDto, User>(userRegistrationDto);
+        var user = _mapper.Map<UserRegistrationDto, User>(userRegistrationDto);
 
-        User.PasswordHash = passwordHash;
-        User.PasswordSalt = passwordSalt;
+        user.PasswordHash = passwordHash;
+        user.PasswordSalt = passwordSalt;
 
-        _dataContext.Users.Add(User);
+        _dataContext.Users.Add(user);
     }
 
     public async Task<User> GetUserByUserNameAsync(string userName)
@@ -40,13 +40,13 @@ public class UserRepository : IUserRepository
 
     public async Task<bool> VerifyPasswordAsync(UserLoginDto userLoginDto)
     {
-        var User = await _dataContext.Users.SingleOrDefaultAsync(u => u.UserName == userLoginDto.UserName);
+        var user = await _dataContext.Users.SingleOrDefaultAsync(u => u.UserName == userLoginDto.UserName);
 
-        if (User == null)
+        if (user == null)
         {
             return false;
         }
 
-        return PasswordHasher.VerifyPasswordHash(userLoginDto.Password, User.PasswordHash, User.PasswordSalt);
+        return PasswordHasher.VerifyPasswordHash(userLoginDto.Password, user.PasswordHash, user.PasswordSalt);
     }
 }

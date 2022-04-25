@@ -1,7 +1,6 @@
 ﻿using Meetup_API.Data;
 using Meetup_API.Helpers;
 using Meetup_API.Interfaces.Data;
-
 namespace Meetup_API.Extensions;
 
 public static class ServiceProviderExtensions

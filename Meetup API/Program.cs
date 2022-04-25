@@ -16,12 +16,10 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidIssuer = authOptions.Issuer,
-           
-            ValidateAudience = true,
-            ValidAudience = authOptions.Audience,
-            
+            ValidateIssuer = false,
+
+            ValidateAudience = false,
+
             ValidateLifetime = true,
             
             IssuerSigningKey = authOptions.GetSymmetricSecurityKey(),

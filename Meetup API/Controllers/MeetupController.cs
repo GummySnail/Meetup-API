@@ -24,9 +24,9 @@ public class MeetupController : BaseApiController
     [Authorize (Roles = "Organizer")]
     public async Task<ActionResult> AddMeetup(MeetupAddDto meetupDto)
     {
-        var OwnerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var ownerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        _unitOfWork.MeetupRepository.AddMeetup(_mapper.Map<MeetupAddDto, Meetup>(meetupDto), OwnerId);
+        _unitOfWork.MeetupRepository.AddMeetup(_mapper.Map<MeetupAddDto, Meetup>(meetupDto), ownerId);
 
         if (!(await _unitOfWork.CompleteAsync()))
         {
@@ -39,45 +39,45 @@ public class MeetupController : BaseApiController
     [HttpGet]
     public async Task<ActionResult<List<ResponseMeetupDto>>> GetMeetups([FromQuery]MeetupParams meetupParams)
     {
-        var Meetups = await _unitOfWork.MeetupRepository.GetMeetupsAsync(meetupParams);
+        var meetups = await _unitOfWork.MeetupRepository.GetMeetupsAsync(meetupParams);
         
-        List<ResponseMeetupDto> MeetupDtos = new List<ResponseMeetupDto>();
+        List<ResponseMeetupDto> meetupDtos = new List<ResponseMeetupDto>();
 
-        foreach (var meetup in Meetups)
+        foreach (var meetup in meetups)
         {
-            MeetupDtos.Add(_mapper.Map<Meetup, ResponseMeetupDto>(meetup));
+            meetupDtos.Add(_mapper.Map<Meetup, ResponseMeetupDto>(meetup));
         }
 
-        return MeetupDtos;
+        return meetupDtos;
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<ResponseMeetupDto>> GetMeetup(int id)
     {
-        var Meetup = await _unitOfWork.MeetupRepository.GetMeetupAsync(id);
+        var meetup = await _unitOfWork.MeetupRepository.GetMeetupAsync(id);
 
-        if (Meetup == null)
+        if (meetup == null)
         {
             return NotFound("Не удалось получить митап");
         }     
 
-        return _mapper.Map<Meetup, ResponseMeetupDto>(Meetup);
+        return _mapper.Map<Meetup, ResponseMeetupDto>(meetup);
     }
 
     [HttpPut]
     [Authorize(Roles = "Organizer")]
     public async Task<ActionResult> UpdateMeetup(RequestMeetupDto request)
     {
-        var UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        if (!(await _unitOfWork.MeetupRepository.IsOwner(UserId)))
+        if (!(await _unitOfWork.MeetupRepository.IsOwner(userId)))
         {
-            return BadRequest("Вы не имеете права изменять чужой митап");
+            return Unauthorized("Вы не имеете права изменять чужой митап");
         }
 
-        var Meetup = await _unitOfWork.MeetupRepository.UpdateMeetupAsync(_mapper.Map<RequestMeetupDto, Meetup>(request));
+        var meetup = await _unitOfWork.MeetupRepository.UpdateMeetupAsync(_mapper.Map<RequestMeetupDto, Meetup>(request));
 
-        if (Meetup == null)
+        if (meetup == null)
         {
             return NotFound("Нет митапа с указанным Id");
         }
@@ -94,16 +94,16 @@ public class MeetupController : BaseApiController
     [Authorize(Roles = "Organizer")]
     public async Task<ActionResult> DeleteMeetup(int id)
     {
-        var UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-        if(!(await _unitOfWork.MeetupRepository.IsOwner(UserId)))
+        if(!(await _unitOfWork.MeetupRepository.IsOwner(userId)))
         {
-            return BadRequest("Вы не имеете права удалять чужой митап");
+            return Unauthorized("Вы не имеете права удалять чужой митап");
         }
 
-        var Meetup = await _unitOfWork.MeetupRepository.DeleteMeetupAsync(id);
+        var meetup = await _unitOfWork.MeetupRepository.DeleteMeetupAsync(id);
 
-        if (Meetup == null)
+        if (meetup == null)
         {
             return NotFound("Нет митапа с указанным Id");
         }
@@ -120,9 +120,9 @@ public class MeetupController : BaseApiController
     [Authorize]
     public async Task<ActionResult> SignUpForMeetup(SignUpForMeetupDto request)
     {
-        var UserMeetup = await _unitOfWork.MeetupRepository.SignUpForMeetupAsync(request);
+        var userMeetup = await _unitOfWork.MeetupRepository.SignUpForMeetupAsync(request);
 
-        if (UserMeetup == null)
+        if (userMeetup == null)
         {
             return NotFound();
         }

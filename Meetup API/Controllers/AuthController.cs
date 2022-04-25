@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using Meetup_API.Dtos.User;
+﻿using Meetup_API.Dtos.User;
 using Meetup_API.Entities;
 using Meetup_API.Helpers;
-using Meetup_API.Interfaces;
 using Meetup_API.Interfaces.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -15,13 +13,11 @@ namespace Meetup_API.Controllers
     public class AuthController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
         private readonly IOptions<AuthOptions> _authOptions;
 
-        public AuthController(IUnitOfWork unitOfWork, IMapper mapper, IOptions<AuthOptions> authOptions)
+        public AuthController(IUnitOfWork unitOfWork, IOptions<AuthOptions> authOptions)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
             _authOptions = authOptions;
         }
 
@@ -40,15 +36,15 @@ namespace Meetup_API.Controllers
                 return BadRequest("Ошибка добавления пользователя");
             }
 
-            var User = await _unitOfWork.UserRepository.GetUserByUserNameAsync(userRegistrationDto.UserName);
+            var user = await _unitOfWork.UserRepository.GetUserByUserNameAsync(userRegistrationDto.UserName);
 
             return new UserDto
             {
-                UserName = User.UserName,
-                Gender = User.Gender,
-                Company = User.Company,
-                DateOfBirth = User.DateOfBirth,
-                AccessToken = GenerateJWT(User)
+                UserName = user.UserName,
+                Gender = user.Gender,
+                Company = user.Company,
+                DateOfBirth = user.DateOfBirth,
+                AccessToken = GenerateJWT(user)
             };
         }
 
@@ -61,41 +57,45 @@ namespace Meetup_API.Controllers
                 return BadRequest("Не верные данные Username или Password");
             }
 
-            var User = await _unitOfWork.UserRepository.GetUserByUserNameAsync(userLoginDto.UserName);
+            var user = await _unitOfWork.UserRepository.GetUserByUserNameAsync(userLoginDto.UserName);
 
             return new UserDto
             {
-                UserName = User.UserName,
-                Gender = User.Gender,
-                Company = User.Company,
-                DateOfBirth = User.DateOfBirth,
-                AccessToken = GenerateJWT(User)
+                UserName = user.UserName,
+                Gender = user.Gender,
+                Company = user.Company,
+                DateOfBirth = user.DateOfBirth,
+                AccessToken = GenerateJWT(user)
             };
         }
 
         private string GenerateJWT(User user)
         {
-            var AuthParams = _authOptions.Value;
+            var authParams = _authOptions.Value;
 
-            var SecurityKey = AuthParams.GetSymmetricSecurityKey();
-            var Credentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
+            var securityKey = authParams.GetSymmetricSecurityKey();
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var Claims = new List<Claim>()
+            var claims = new List<Claim>()
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                };
+
+            claims.Add(new Claim("role", user.Role.ToString()));
+
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddSeconds(authParams.TokenLifeTime),
+                SigningCredentials = credentials
             };
 
-            Claims.Add(new Claim("role", user.Role.ToString()));
+            var tokenHandler = new JwtSecurityTokenHandler();
 
-            var token = new JwtSecurityToken(AuthParams.Issuer,
-                AuthParams.Audience,
-                Claims,
-                expires: DateTime.UtcNow.AddSeconds(AuthParams.TokenLifeTime),
-                signingCredentials: Credentials);
+            var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return tokenHandler.WriteToken(token);
         }
 
-        
     }
 }
