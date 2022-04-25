@@ -44,48 +44,18 @@ public class MeetupRepository : IMeetupRepository
 
     public async Task<PagedList<Meetup>> GetMeetupsAsync(MeetupParams meetupParams)
     {
+        var Query = _dataContext.Meetups
+            .Where(m => m.City.ToLower().Contains(meetupParams.City.ToLower()))
+            .Where(m => m.Name.ToLower().Contains(meetupParams.Name.ToLower()));
 
-        var queryMeetup = _dataContext.Meetups.AsQueryable()
-            .AsNoTracking()
-            .Include(m => m.Tags);
-
-        queryMeetup = meetupParams.OrderByDateTime switch
+        Query = meetupParams.OrderByDateTime switch
         {
-            "Upcoming" => _dataContext.Meetups.AsQueryable()
-            .AsNoTracking()
-            .OrderBy(query => query.StartMeetupDateTime)
-            .Include(m => m.Tags),
-
-            _ => _dataContext.Meetups.AsQueryable()
-            .AsNoTracking()
-            .OrderByDescending(query => query.StartMeetupDateTime)
-            .Include(m => m.Tags)
+            "Upcoming" => Query.OrderBy(query => query.StartMeetupDateTime).Include(t => t.Tags),
+            _ => Query.OrderByDescending(query => query.EndMeetupDateTime).Include(t => t.Tags)
         };
 
-        if (meetupParams.City != null)
-        {
-            queryMeetup = _dataContext.Meetups.AsQueryable()
-                .AsNoTracking()
-                .Where(m => m.City.ToLower() == meetupParams.City.ToLower())
-                .Include(m => m.Tags);
-        }
-
-        if (meetupParams.Name != null)
-        {
-            queryMeetup = _dataContext.Meetups.AsQueryable()
-                .AsNoTracking()
-                .Where(m => m.Name.ToLower()
-                .Contains(meetupParams.Name.ToLower()))
-                .Include(m => m.Tags);
-        }
-
-        if (queryMeetup.Count() < 1)
-        {
-            return null;
-        }
-
         return await PagedList<Meetup>
-            .CreateAsync(queryMeetup, meetupParams.PageNumber, meetupParams.PageSize);
+            .CreateAsync(Query, meetupParams.PageNumber, meetupParams.PageSize);
     }
 
     public async Task<UserMeetup> SigUpForMeetupAsync(UserMeetup userMeetup)

@@ -83,7 +83,6 @@ namespace Meetup_API.Controllers
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
             };
 
             claims.Add(new Claim("role", user.Role.ToString()));

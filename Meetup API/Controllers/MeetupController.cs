@@ -40,11 +40,6 @@ public class MeetupController : BaseApiController
     public async Task<ActionResult<List<ResponseMeetupDto>>> GetMeetups([FromQuery]MeetupParams meetupParams)
     {
         var meetups = await _unitOfWork.MeetupRepository.GetMeetupsAsync(meetupParams);
-
-        if (meetups == null)
-        {
-            return BadRequest("Не удалось получить митапы");
-        }
         
         List<ResponseMeetupDto> meetupDtos = new List<ResponseMeetupDto>();
 
@@ -59,14 +54,14 @@ public class MeetupController : BaseApiController
     [HttpGet("{id}")]
     public async Task<ActionResult<ResponseMeetupDto>> GetMeetup(int id)
     {
-        var meetup = await _unitOfWork.MeetupRepository.GetMeetupAsync(id);
+        var Meetup = await _unitOfWork.MeetupRepository.GetMeetupAsync(id);
 
-        if (meetup == null)
+        if (Meetup == null)
         {
-            return BadRequest("Не удалось получить митап");
+            return NotFound("Не удалось получить митап");
         }     
 
-        return _mapper.Map<Meetup, ResponseMeetupDto>(meetup);
+        return _mapper.Map<Meetup, ResponseMeetupDto>(Meetup);
     }
 
     [HttpPut]
@@ -76,6 +71,7 @@ public class MeetupController : BaseApiController
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
         var meetup = await _unitOfWork.MeetupRepository.UpdateMeetupAsync(_mapper.Map<RequestMeetupDto, Meetup>(request), userId);
+
 
         if (meetup == null)
         {
